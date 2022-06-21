@@ -1,10 +1,6 @@
 
 document.addEventListener("DOMContentLoaded",(event)=>{
    
-    for (let index = 0; index < messageArray.length; index++) {
-        const msg = messageArray[index];
-        bandeauMessage(msg)
-    }
     
     
 })
@@ -17,19 +13,13 @@ let testLoop=()=>{
         bandeauMessage(msg)
     }
 }
-let bandeauMessage = async (message,recursive,type=1,duration=2500) =>{
-    if(message===null){
+let bandeauMessage = async (message,type=1,duration=2500) =>{
+    if(message===undefined){
         message='Demande en cours de traitement'
     }
-   
-    if(recursive===undefined){
-       let msgCreatead = await generateNewMessage(message)
-       if(msgCreatead){
+    let msgCreatead = await generateNewMessage(message)
+    if(msgCreatead){
         __subBandeauMessage(msgCreatead,type,duration)
-       }
-    }else{
-
-        __subBandeauMessage(message,type,duration)
     }
    
     
