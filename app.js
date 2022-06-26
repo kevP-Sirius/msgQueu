@@ -1,6 +1,14 @@
 
 document.addEventListener("DOMContentLoaded",(event)=>{
-   
+    if(sessionStorage.getItem('msgQueu')!==undefined){
+        let registeredMsgQueu=JSON.parse(sessionStorage.getItem('msgQueu'))
+        if(registeredMsgQueu.length){
+            for (let index = 0; index < registeredMsgQueu.length; index++) {
+                const msg = registeredMsgQueu[index];
+                bandeauMessage(msg.text)
+            }
+        }
+    }
     
     
 })
@@ -17,27 +25,28 @@ let bandeauMessage = async (message,type=1,duration=2500) =>{
     if(message===undefined){
         message='Demande en cours de traitement'
     }
-    let msgCreatead = await generateNewMessage(message)
+    let msgCreatead = await generateNewMessage({text:message,type:type,duration:duration})
     if(msgCreatead){
-        __subBandeauMessage(msgCreatead,type,duration)
+        __subBandeauMessage({...msgCreatead})
     }
    
     
 }
 
-let generateNewMessage=async (message)=>{
+let generateNewMessage=async (messageContent)=>{
     let now = new Date().getTime()
     check = msgQueu.filter(element=>element.createdAt==now);
     if(check.length>0){
-        return new Promise(resolve=>resolve(generateNewMessage(message))) 
+        return new Promise(resolve=>resolve(generateNewMessage({text:messageContent.text,type:messageContent.type,duration:messageContent.duration}))) 
     }else{
-        message= {createdAt:now,text:message}
+        message= {...messageContent,createdAt:now}
         msgQueu.push(message);
+        sessionStorage.setItem('msgQueu',JSON.stringify([...msgQueu]))
         return new Promise(resolve=>resolve(message))
     } 
 }
 
-let __subBandeauMessage=async(message,type,duration)=>{
+let __subBandeauMessage=async(message)=>{
     let dateList = []
     msgQueu.map((msgObject,index)=>{
        return dateList.push(msgObject.createdAt)
@@ -48,7 +57,7 @@ let __subBandeauMessage=async(message,type,duration)=>{
     })
     if(elementToUse[0].createdAt!==message.createdAt){
           setTimeout(()=>{
-            return __subBandeauMessage(message,type,duration)
+            return __subBandeauMessage(message,message.type,message.duration)
         },3500)
     }else{
         let destroyBandeauChecking = async()=>{
@@ -62,7 +71,7 @@ let __subBandeauMessage=async(message,type,duration)=>{
             
     
             let style=''
-            switch (type) {
+            switch (message.type) {
             case 1:
                 //Information
                 style = "display:none;border-radius: 5px;color: #fff!important;padding: 1rem!important;margin-bottom: 0.5rem!important;background-color: #007bff!important;text-align: center!important;font-size:18px;position: sticky;top:0;width: 100%;z-index: 10000;opacity:77%;"
@@ -83,8 +92,9 @@ let __subBandeauMessage=async(message,type,duration)=>{
                 $('.bandeauMessage').css('transition','all 2s ease-out')
                 $('.bandeauMessage').remove();
                 msgQueu.shift()
+                sessionStorage.setItem('msgQueu',JSON.stringify([...msgQueu]))
                 
-            },duration)
+            },message.duration)
         }
         
          
