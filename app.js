@@ -2,9 +2,10 @@ document.addEventListener("DOMContentLoaded",(event)=>{
     if(sessionStorage.getItem('msgQueu')!==undefined){
         let registeredMsgQueu=JSON.parse(sessionStorage.getItem('msgQueu'))
         if(registeredMsgQueu.length){
+            msgQueu=registeredMsgQueu
             for (let index = 0; index < registeredMsgQueu.length; index++) {
                 const msg = registeredMsgQueu[index];
-                bandeauMessage(msg.text)
+                __subBandeauMessage(msg)
             }
         }
     }
